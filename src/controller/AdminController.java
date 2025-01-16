@@ -11,6 +11,7 @@ import view.LoginView;
 import view.ManageStudents;
 import view.ManageSubjects;
 import view.ManageTeachers;
+import view.ReportView;
 
 /**
  *
@@ -112,7 +113,10 @@ public class AdminController {
     }
 
     private void generateReport() {
-        JOptionPane.showMessageDialog(view, "Generating Report...");
+        ReportView rview = new ReportView();
+        rview.setModal(true);
+        rview.setLocationRelativeTo(null);
+        rview.setVisible(true);
     }
 
     private void logout() {
