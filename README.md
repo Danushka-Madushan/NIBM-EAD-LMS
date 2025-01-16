@@ -150,9 +150,14 @@ The application follows the **MVC (Model-View-Controller)** design pattern:
 
 ## Screenshots
 
-_Add relevant screenshots of the application here._
+Here are some screenshots showcasing the application:
 
----
+![Screenshot 1](https://i.ibb.co/CM7N8dq/Screenshot-21.png)
+
+![Screenshot 2](https://i.ibb.co/xDHhJxp/Screenshot-19.png)
+
+![Screenshot 3](https://i.ibb.co/YN454pN/Screenshot-20.png)
+
 
 ## Troubleshooting
 
