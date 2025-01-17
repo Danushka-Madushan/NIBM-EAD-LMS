@@ -68,4 +68,29 @@ public class ReportController {
             e.printStackTrace();
         }
     }
+    
+    public static void generateAttendenceReport() {
+        try {
+            // Establish DB Connection
+            Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            
+            // Load the Jasper Report
+            JasperReport jasperReport = JasperCompileManager.compileReport("src/main/resources/attendence_report.jrxml");
+            
+            // Fill Report
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, new HashMap<>(), conn);
+            
+            // Create the JasperViewer instance
+            JasperViewer viewer = new JasperViewer(jasperPrint, false);
+            
+            // Force the report window to appear on top
+            viewer.setAlwaysOnTop(true);
+            viewer.setVisible(true);
+            
+            // Close connection
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
