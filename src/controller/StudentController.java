@@ -26,7 +26,7 @@ public class StudentController {
     }
 
     private void viewAttendance() {
-        JOptionPane.showMessageDialog(view, "Viewing Attendance...");
+        ReportController.generateAttendenceReport();
     }
 
     private void payFees() {

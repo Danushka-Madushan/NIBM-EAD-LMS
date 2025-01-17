@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports 
+                                  http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" 
+              name="Attendance Report" pageWidth="595" pageHeight="842" columnWidth="555" 
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" 
+              uuid="f0bcd5e1-6bde-476d-9793-b55757d063a7">
+
+    <!-- Query to fetch attendance data -->
+    <queryString>
+        <![CDATA[
+            SELECT 
+            s.name, 
+            s.email, 
+            s.phone, 
+            a.status,
+            CASE 
+                WHEN a.status = 'absent' THEN 1
+                ELSE 0
+            END AS ab_count,
+            CASE 
+                WHEN a.status = 'present' THEN 1
+                ELSE 0
+            END AS pr_count
+        FROM 
+            students s
+        LEFT JOIN 
+            attendance a ON s.id = a.student_id
+        WHERE 
+            s.id = 2;
+
+        ]]>
+    </queryString>
+
+    <!-- Fields to hold report data -->
+    <field name="name" class="java.lang.String"/>
+    <field name="email" class="java.lang.String"/>
+    <field name="phone" class="java.lang.String"/>
+    <field name="status" class="java.lang.String"/>
+    <field name="ab_count" class="java.lang.Integer"/>
+    <field name="pr_count" class="java.lang.Integer"/>
+
+    <variable name="SUM_paid_amount" class="java.lang.Integer" calculation="Sum">
+        <variableExpression><![CDATA[$F{pr_count}]]></variableExpression>
+    </variable>
+
+    <variable name="SUM_pending_amount" class="java.lang.Integer" calculation="Sum">
+        <variableExpression><![CDATA[$F{ab_count}]]></variableExpression>
+    </variable>
+
+    <!-- Title of the Report -->
+    <title>
+        <band height="60">
+            <staticText>
+                <reportElement x="0" y="0" width="200" height="20" />
+                <textElement />
+                <text><![CDATA[Attendance Report]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <!-- Column Headers -->
+    <columnHeader>
+        <band height="20">
+            <staticText>
+                <reportElement x="0" y="0" width="100" height="20" />
+                <textElement />
+                <text><![CDATA[Student Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="120" y="0" width="150" height="20" />
+                <textElement />
+                <text><![CDATA[Email]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="270" y="0" width="100" height="20" />
+                <textElement />
+                <text><![CDATA[Phone]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="390" y="0" width="100" height="20" />
+                <textElement />
+                <text><![CDATA[Attendance Status]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- Detail Section -->
+    <detail>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="100" height="20" />
+                <textElement />
+                <textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="120" y="0" width="150" height="20" />
+                <textElement />
+                <textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="270" y="0" width="100" height="20" />
+                <textElement />
+                <textFieldExpression><![CDATA[$F{phone}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="390" y="0" width="100" height="20" />
+                <textElement />
+                <textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <!-- Summary Section to show total attendance -->
+    <summary>
+    <band height="60">
+        <!-- Paid Amount -->
+        <textField pattern="### Days">
+            <reportElement x="160" y="5" width="100" height="20" forecolor="#0000FF"/>
+            <textElement textAlignment="Right">
+                <font isBold="true"/>
+            </textElement>
+            <textFieldExpression><![CDATA[$V{SUM_paid_amount}]]></textFieldExpression>
+        </textField>
+        <staticText>
+            <reportElement x="0" y="5" width="150" height="20"/>
+            <textElement>
+                <font isBold="true"/>
+            </textElement>
+            <text><![CDATA[Present Count:]]></text>
+        </staticText>
+
+        <!-- Unpaid Amount -->
+        <textField pattern="### Days">
+            <reportElement x="160" y="30" width="100" height="20" forecolor="#FF0000"/>
+            <textElement textAlignment="Right">
+                <font isBold="true"/>
+            </textElement>
+            <textFieldExpression><![CDATA[$V{SUM_pending_amount}]]></textFieldExpression>
+        </textField>
+        <staticText>
+            <reportElement x="0" y="30" width="150" height="20"/>
+            <textElement>
+                <font isBold="true"/>
+            </textElement>
+            <text><![CDATA[Abesent Count:]]></text>
+        </staticText>
+    </band>
+</summary>
+    
+</jasperReport>

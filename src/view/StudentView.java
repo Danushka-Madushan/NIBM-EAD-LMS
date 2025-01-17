@@ -4,19 +4,37 @@
  */
 package view;
 
+import controller.ReportController;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author gh
  */
 public class StudentView extends javax.swing.JFrame {
-
+    private static final String URL = "jdbc:mysql://localhost/lms";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
     /**
      * Creates new form StudentView
      */
     public StudentView() {
         initComponents();
+        String[] selectedColumns = {"id", "student_id", "date", "status"};
+        loadTableData("attendance", attendance_table, selectedColumns);
+        attendance_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
     /**
@@ -29,7 +47,7 @@ public class StudentView extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        attendance_table = new javax.swing.JTable();
         btnViewAttendance = new javax.swing.JButton();
         btnPayFees = new javax.swing.JButton();
         btnLogout = new javax.swing.JButton();
@@ -39,7 +57,7 @@ public class StudentView extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("LMS | Student");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        attendance_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -50,9 +68,14 @@ public class StudentView extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(attendance_table);
 
-        btnViewAttendance.setText("Attendance");
+        btnViewAttendance.setText("Attendance Report");
+        btnViewAttendance.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewAttendanceActionPerformed(evt);
+            }
+        });
 
         btnPayFees.setText("Grades");
 
@@ -101,6 +124,78 @@ public class StudentView extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnViewAttendanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewAttendanceActionPerformed
+        
+    }//GEN-LAST:event_btnViewAttendanceActionPerformed
+    
+    public static void loadTableData(String tableName, JTable table, String[] selectedColumns) {
+        // Use a custom DefaultTableModel to make the table non-editable
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // All cells are non-editable
+            }
+        };
+
+        table.setModel(model);
+
+        // Clear existing table data
+        model.setRowCount(0);
+        model.setColumnCount(0);
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM attendance WHERE student_id = 8")) {
+
+            // Fetch column metadata
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            // Map selected columns to their indices
+            List<Integer> columnIndices = new ArrayList<>();
+            for (String column : selectedColumns) {
+                for (int i = 1; i <= columnCount; i++) {
+                    if (metaData.getColumnName(i).equalsIgnoreCase(column)) {
+                        columnIndices.add(i);
+                        model.addColumn(column);
+                        break;
+                    }
+                }
+            }
+
+            // Add rows to the model using only selected columns
+            while (rs.next()) {
+                Object[] rowData = new Object[columnIndices.size()];
+                for (int i = 0; i < columnIndices.size(); i++) {
+                    rowData[i] = rs.getObject(columnIndices.get(i));
+                }
+                model.addRow(rowData);
+            }
+
+            // Adjust column widths to fit content
+            fitColumnsToContent(table);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Failed to load table data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void fitColumnsToContent(JTable table) {
+        for (int column = 0; column < table.getColumnCount(); column++) {
+            int preferredWidth = 100; // Default minimum width
+            for (int row = 0; row < table.getRowCount(); row++) {
+                Object value = table.getValueAt(row, column);
+                if (value != null) {
+                    // Measure the preferred width based on the value
+                    int cellWidth = table.getFontMetrics(table.getFont()).stringWidth(value.toString());
+                    preferredWidth = Math.max(preferredWidth, cellWidth + 20); // Add padding
+                }
+            }
+            table.getColumnModel().getColumn(column).setPreferredWidth(preferredWidth);
+        }
+    }
     
     public void addViewAttendanceListener(ActionListener listener) {
         btnViewAttendance.addActionListener(listener);
@@ -115,12 +210,12 @@ public class StudentView extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable attendance_table;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnPayFees;
     private javax.swing.JButton btnPayFees1;
     private javax.swing.JButton btnViewAttendance;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
 }
